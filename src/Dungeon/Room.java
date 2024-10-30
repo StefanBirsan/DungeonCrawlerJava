@@ -1,6 +1,6 @@
 package Dungeon;
 
-public class Room {
+public class Room implements Comparable<Room> {
     private int id;
     private String description;
     private boolean hasEnemy;
@@ -13,4 +13,8 @@ public class Room {
         this.hasTreasure = hasTreasure;
     }
 
+    @Override
+    public int compareTo(Room other) {
+        return Integer.compare(this.id, other.id);
+    }
 }
