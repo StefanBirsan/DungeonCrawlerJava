@@ -1,5 +1,8 @@
 package item;
 
+import Interfaces.Consumable;
+import Interfaces.Storable;
+
 public class Item implements Consumable, Storable {
 
     private String itemName;

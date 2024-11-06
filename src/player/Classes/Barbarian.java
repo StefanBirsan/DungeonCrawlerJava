@@ -1,4 +1,6 @@
-package player;
+package player.Classes;
+
+import player.PlayerClass;
 
 public class Barbarian extends PlayerClass {
     private boolean isRaging;

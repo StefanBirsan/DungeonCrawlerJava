@@ -1,5 +1,7 @@
 package Dungeon;
 
+import Interfaces.Interactable;
+
 public class Encounter implements Interactable {
 
     String encounterMessage;
@@ -11,7 +13,19 @@ public class Encounter implements Interactable {
     }
 
     public void interact() {
-        System.out.println("You've encountered a monster!");
+        switch (encounterType) {
+            case "Enemy":
+                System.out.println("You've encountered an enemy! " + encounterMessage);
+                break;
+            case "Treasure":
+                System.out.println("You've found a treasure! " + encounterMessage);
+                break;
+            case "Trap":
+                System.out.println("You've triggered a trap! " + encounterMessage);
+                break;
+            default:
+                System.out.println("You've encountered something unexpected! " + encounterMessage);
+                break;
+        }
     }
-
 }

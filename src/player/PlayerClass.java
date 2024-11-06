@@ -1,16 +1,20 @@
+// src/player/PlayerClass.java
 package player;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public abstract class PlayerClass extends Player {
-    private String playerClass;
+public abstract class PlayerClass {
+    protected String name;
+    protected int health;
     protected int mana;
     protected int attackPower;
-    protected ArrayList<String> inventory;
+    protected List<String> inventory;
+    private String playerClass;
 
     public PlayerClass(String name, int health, int mana, int attackPower) {
-        super(name);
-        this.health = health;  // override default health
+        this.name = name;
+        this.health = health;
         this.mana = mana;
         this.attackPower = attackPower;
         this.inventory = new ArrayList<>();
@@ -21,20 +25,24 @@ public abstract class PlayerClass extends Player {
 
     public abstract void specialAction();
 
-    public String getPlayerClass() {
-        return playerClass;
-    }
+    public abstract void attack();
 
     public void setPlayerClass(String playerClass) {
         this.playerClass = playerClass;
     }
 
-    public void attack() {
-        System.out.println(name + " attacks with " + attackPower + " power.");
+    public String getPlayerClass() {
+        return playerClass;
     }
 
     public void showInventory() {
-        System.out.println(name + "'s Inventory: " + inventory);
+        System.out.println(name + "'s Inventory:");
+        for (String item : inventory) {
+            System.out.println("- " + item);
+        }
     }
 
+    public int getHealth() {
+        return health;
+    }
 }

@@ -1,4 +1,4 @@
-package item;
+package Interfaces;
 
 public interface Consumable {
     public void consume();

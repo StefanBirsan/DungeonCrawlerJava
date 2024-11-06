@@ -1,4 +1,4 @@
-package item;
+package Interfaces;
 
 public interface Storable {
     public void store();
