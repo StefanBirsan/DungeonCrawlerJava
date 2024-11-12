@@ -6,7 +6,7 @@ public class RedBlackTree {
 
     public RedBlackTree() {
         TNULL = new Node(null);
-        TNULL.color = false; // TNULL is black
+        TNULL.color = false;
         root = TNULL;
     }
 
@@ -191,5 +191,6 @@ public class RedBlackTree {
         Node node = searchTree(room.getId());
         return node != TNULL ? node.right : null;
     }
+
 
 }

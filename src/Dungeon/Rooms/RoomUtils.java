@@ -20,10 +20,8 @@ public class RoomUtils {
         RedBlackTree tree = new RedBlackTree();
         Random random = new Random();
 
-        // Insert the Entrance room
         tree.insert(new Room(1, "Entrance", false, false, null));
 
-        // Generate and insert the rest of the rooms
         for (int i = 1; i <= numberOfRooms; i++) {
             String description = ROOM_DESCRIPTIONS[random.nextInt(ROOM_DESCRIPTIONS.length)];
             boolean hasEnemy = random.nextBoolean();

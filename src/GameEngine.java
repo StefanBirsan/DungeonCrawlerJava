@@ -4,6 +4,7 @@ import Dungeon.Rooms.RoomUtils;
 import player.PlayerClass;
 import player.Classes.Barbarian;
 import player.Classes.Wizzard;
+import Exception.RoomNotSetException;
 
 import java.util.Scanner;
 
@@ -19,32 +20,40 @@ public class GameEngine {
     }
 
     public void action() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("You are in a " + currentRoom.getDescription());
-        System.out.println("Choose an action:");
-        System.out.println("1. Attack");
-        System.out.println("2. Special Action");
-        System.out.println("3. Show Inventory");
-        System.out.println("4. Move to next room");
-        System.out.println("5. Use item");
-        System.out.println("6. Quit game");
+        try {
+            if (currentRoom == null) {
+                throw new RoomNotSetException("Current room is not set.");
+            }
 
-        int choice = scanner.nextInt();
-        switch (choice) {
-            case 1:
-                player.attack();
-                break;
-            case 2:
-                player.specialAction();
-                break;
-            case 3:
-                player.showInventory();
-                break;
-            case 4:
-                moveToNextRoom();
-                break;
-            default:
-                System.out.println("Invalid choice.");
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("You are in a " + currentRoom.getDescription());
+            System.out.println("Choose an action:");
+            System.out.println("1. Attack");
+            System.out.println("2. Special Action");
+            System.out.println("3. Show Inventory");
+            System.out.println("4. Move to next room");
+            System.out.println("5. Use item");
+            System.out.println("6. Quit game");
+
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    player.attack();
+                    break;
+                case 2:
+                    player.specialAction();
+                    break;
+                case 3:
+                    player.showInventory();
+                    break;
+                case 4:
+                    moveToNextRoom();
+                    break;
+                default:
+                    System.out.println("Invalid choice.");
+            }
+        } catch (RoomNotSetException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -74,14 +83,11 @@ public class GameEngine {
                 player = new Barbarian(playerName);
         }
 
-        // Get the number of rooms
         System.out.print("Enter the number of rooms: ");
         int numberOfRooms = scanner.nextInt();
 
-        // Generate the dungeon
         roomTree = RoomUtils.generateDungeon(numberOfRooms);
 
-        // Start the game in the entrance room (assuming the entrance room has ID 1)
         currentRoom = roomTree.searchTree(1).room;
 
         System.out.println("Game started!");
@@ -98,7 +104,11 @@ public class GameEngine {
         }
     }
 
-    private void moveToNextRoom() {
+    private void moveToNextRoom() throws RoomNotSetException {
+        if (currentRoom == null) {
+            throw new RoomNotSetException("Current room is not set.");
+        }
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Choose a direction to move:");
         if (roomTree.getLeftChild(currentRoom) != null) {
