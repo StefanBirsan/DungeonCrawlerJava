@@ -1,5 +1,6 @@
 package player.Classes;
 
+import Dungeon.Enemy;
 import player.PlayerClass;
 import item.Item;
 import Interfaces.ItemAction;
@@ -37,13 +38,11 @@ public class Barbarian extends PlayerClass {
     }
 
     @Override
-    public void attack() {
-        if (isRaging) {
-            System.out.println(name + " attacks with " + attackPower * 2 + " power.");
-            isRaging = false;
-        } else {
-            System.out.println(name + " attacks with " + attackPower + " power.");
-        }
+    public void attack(Enemy enemy) {
+        int damage = isRaging ? attackPower * 2 : attackPower;
+        System.out.println(name + " attacks with " + damage + " power.");
+        enemy.takeDamage(damage);
+        isRaging = false;
     }
 
     public void increaseHealth(int amount) {

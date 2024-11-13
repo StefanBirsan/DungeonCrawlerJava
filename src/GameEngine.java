@@ -1,3 +1,4 @@
+import Dungeon.Enemy;
 import Dungeon.Rooms.RedBlackTree;
 import Dungeon.Rooms.Room;
 import Dungeon.Rooms.RoomUtils;
@@ -24,6 +25,7 @@ public class GameEngine {
     private RedBlackTree roomTree;
     private Room previousRoom;
     private Map<Integer, String> roomMap;
+    private Map<Integer, Enemy> roomEnemies = new HashMap<>();
 
     public GameEngine() {
         this.roomTree = new RedBlackTree();
@@ -74,20 +76,39 @@ public class GameEngine {
             System.out.println("=====================================");
 
             if (currentRoom.hasEnemy()) {
+                Enemy enemy = currentRoom.getEnemy();
+                if (!enemy.isMessageShown()) {
+                    System.out.println(enemy.getEncounterMessage());
+                    enemy.setMessageShown(true);
+                }
+
                 System.out.println("An enemy is here! Choose an action:");
                 System.out.println("1. Attack");
                 System.out.println("2. Special Action");
                 System.out.println("3. Show Inventory");
                 System.out.println("4. Use item");
-                System.out.println("5. Quit game");
+                System.out.println("5. Show Enemy Info");
+                System.out.println("6. Quit game");
 
                 int choice = new Scanner(System.in).nextInt();
                 switch (choice) {
                     case 1:
-                        player.attack();
+                        player.attack(currentRoom.getEnemy());
+                        if (currentRoom.getEnemy().isDead()) {
+                            System.out.println("You have defeated the enemy!");
+                            moveToNextRoom();
+                        } else {
+                            currentRoom.getEnemy().attack(player);
+                            if (player.getHealth() <= 0) {
+                                System.out.println("You have been defeated by the enemy!");
+                                System.exit(0);
+                            }
+                        }
+                        playerTakeDamage(player);
                         break;
                     case 2:
                         player.specialAction();
+                        playerTakeDamage(player);
                         break;
                     case 3:
                         player.showInventory();
@@ -96,6 +117,10 @@ public class GameEngine {
                         useItem();
                         break;
                     case 5:
+                        showEnemyInfo();
+                        playerTakeDamage(player);
+                        break;
+                    case 6:
                         System.exit(0);
                         break;
                     default:
@@ -130,6 +155,7 @@ public class GameEngine {
                         System.out.println("Invalid choice.");
                 }
             }
+
 
         } catch (RoomNotSetException e) {
             System.out.println(e.getMessage());
@@ -263,9 +289,49 @@ public class GameEngine {
         String chosenRoomLine = lines.get(chosenRoomIndex);
         int chosenRoomId = Integer.parseInt(chosenRoomLine.split(", ")[0].split(": ")[1]);
         String chosenRoomDescription = chosenRoomLine.split(", ")[1].split(": ")[1];
+        boolean hasEnemy = Boolean.parseBoolean(chosenRoomLine.split(", ")[2].split(": ")[1]);
+
+        Enemy enemy = null;
+        if (hasEnemy) {
+            if ("Boss Room".equals(chosenRoomDescription)) {
+                enemy = new Enemy("Boss", "A mighty boss appears!" +
+                        "                            /|               |\\                              \n" +
+                        "                           / | ___-------___ | \\                             \n" +
+                        "                          /  \\/ ^ /\\   /\\ ^ \\/  \\                            \n" +
+                        "                         |   (  O-. \\ / .-O  )   |                           \n" +
+                        "                      /-\\/   ^-----^-V-^-----^   \\/-\\                        \n" +
+                        "                    /-      (~ 0O0 ~) (~ 000 ~)     -\\                       \n" +
+                        "                   <        (~ OOO ~) (~ 000 ~)       >                      \n" +
+                        "                   \\-      (____---===---____)     -/                       \n" +
+                        "                   \\-   /\\ \\ \\|         |/ / /\\  -/                        \n" +
+                        "                    -/\\-/  \\ \\ V         V / /  \\-/\\-                       \n" +
+                        "                        v    \\ \\           / /    v                          \n" +
+                        "                              \\ \\ A     A / /                                \n" +
+                        "                               \\_\\^-----^/_/                                 \n" +
+                        "                                \\_/\\___/\\_/                                  \n" +
+                        "                                  \\_____/", "Dragon", 200, 30, 75, "A mighty dragon that dungeon.");
+            } else {
+                enemy = new Enemy("Enemy", "A wild enemy appears!" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⣿⣿⣶⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣾⣿⣿⣿⣿⣿⣿⣷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⢧⡀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠢⣤⣀⡀⠀⠀⠀⢿⣧⣄⡉⠻⢿⣿⣿⡿⠟⢉⣠⣼⡿⠀⠀⠀⠀⣀⣤⠔⠀\n" +
+                        "⠀⠀⠈⢻⣿⣶⠀⣷⠀⠉⠛⠿⠶⡴⢿⡿⢦⠶⠿⠛⠉⠀⣾⠀⣶⣿⡟⠁⠀⠀\n" +
+                        "⠀⠀⠀⠀⠻⣿⡆⠘⡇⠘⠷⠠⠦⠀⣾⣷⠀⠴⠄⠾⠃⢸⠃⢰⣿⠟⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠋⢠⣾⣥⣴⣶⣶⣆⠘⣿⣿⠃⣰⣶⣶⣦⣬⣷⡄⠙⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⢋⠛⠻⠿⣿⠟⢹⣆⠸⠇⣰⡏⠻⣿⠿⠟⠛⡙⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠈⢧⡀⠠⠄⠀⠈⠛⠀⠀⠛⠁⠀⠠⠄⢀⡼⠁⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠈⢻⣦⡀⠃⠀⣿⡆⢰⣿⠀⠘⢀⣴⡟⠁⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠹⣿⣦⡀⠘⠇⠸⠃⢀⣴⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⢿⣿⣷⣄⣠⣾⣿⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠻⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n" +
+                        "⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀", "Goblin", 50, 15, 5, "A wild goblin appears in the dungeon.");
+            }
+        }
 
         previousRoom = currentRoom;
-        currentRoom = new Room(chosenRoomId, chosenRoomDescription, false, false, null);
+        currentRoom = new Room(chosenRoomId, chosenRoomDescription, hasEnemy, false, enemy);
         System.out.println("\nMoved to room: " + currentRoom.getDescription());
         markRoomAsVisited(chosenRoomId);
     }
@@ -320,5 +386,28 @@ public class GameEngine {
             }
         }
         return null;
+    }
+
+    private void showEnemyInfo() {
+        if (currentRoom.getEnemy() != null) {
+            Enemy enemy = currentRoom.getEnemy();
+            System.out.println("Enemy name: " + enemy.getName());
+            System.out.println("Enemy description: " + enemy.getDescription());
+            System.out.println("Enemy type: " + enemy.getType());
+            System.out.println("Enemy health: " + enemy.getHealth());
+            System.out.println("Enemy attack: " + enemy.getAttack());
+        } else {
+            System.out.println("There is no enemy in this room.");
+        }
+    }
+
+    private void playerTakeDamage(PlayerClass player) {
+        int damage = currentRoom.getEnemy().getDamage();
+        currentRoom.getEnemy().attack(player);
+        System.out.println("You took " + damage + " damage.");
+        if (player.getHealth() <= 0) {
+            System.out.println("You have been defeated!");
+            System.exit(0);
+        }
     }
 }

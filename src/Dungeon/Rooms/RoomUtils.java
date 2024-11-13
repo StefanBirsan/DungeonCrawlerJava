@@ -13,10 +13,6 @@ public class RoomUtils {
             "Hallway", "Treasure Room", "Boss Room", "Library", "Armory",
     };
 
-    public static void sortRoomsById(List<Room> rooms) {
-        Collections.sort(rooms);
-    }
-
     public static RedBlackTree generateDungeon(int numberOfRooms) {
         RedBlackTree tree = new RedBlackTree();
         Random random = new Random();
@@ -33,12 +29,12 @@ public class RoomUtils {
             String description = ROOM_DESCRIPTIONS[random.nextInt(ROOM_DESCRIPTIONS.length)];
             boolean hasEnemy = "Boss Room".equals(description) || random.nextBoolean();
             boolean hasTreasure = random.nextBoolean();
-            Encounter encounter = null;
+            Enemy encounter = null;
 
             if ("Boss Room".equals(description)) {
-                encounter = new Enemy("Boss", "A mighty boss appears!", "Dragon", 200, 30, 15);
+                encounter = new Enemy("Boss", "A mighty boss appears!", "Dragon", 200, 30, 15, "A large fire breathing dragon.");
             } else if (hasEnemy) {
-                encounter = new Enemy("Enemy", "A wild enemy appears!", "Goblin", 50, 15, 5);
+                encounter = new Enemy("Enemy", "A wild enemy appears!", "Goblin", 50, 15, 5, "A small green creature.");
             }
 
             tree.insert(new Room(roomIds.get(i - 1), description, hasEnemy, hasTreasure, encounter));

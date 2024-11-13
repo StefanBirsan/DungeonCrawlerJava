@@ -1,5 +1,6 @@
 package player;
 
+import Dungeon.Enemy;
 import item.Item;
 
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public abstract class PlayerClass extends Player {
 
     public abstract void specialAction();
 
-    public abstract void attack();
+    public abstract void attack(Enemy enemy);
 
     public void setPlayerClass(String playerClass) {
         this.playerClass = playerClass;

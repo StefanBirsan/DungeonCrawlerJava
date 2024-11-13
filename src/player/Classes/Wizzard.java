@@ -1,5 +1,6 @@
 package player.Classes;
 
+import Dungeon.Enemy;
 import Interfaces.ItemAction;
 import player.PlayerClass;
 import item.Item;
@@ -38,13 +39,11 @@ public class Wizzard extends PlayerClass {
     }
 
     @Override
-    public void attack() {
-        if (isDoubled) {
-            System.out.println(name + " attacks with " + attackPower * 2 + " power.");
-            isDoubled = false;
-        } else {
-            System.out.println(name + " attacks with " + attackPower + " power.");
-        }
+    public void attack(Enemy enemy) {
+        int damage = isDoubled ? attackPower * 2 : attackPower;
+        System.out.println(name + " attacks with " + damage + " power.");
+        enemy.takeDamage(damage);
+        isDoubled = false;
     }
 
     public void castSpell(String spell, Integer damage) {
