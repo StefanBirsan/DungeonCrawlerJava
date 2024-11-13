@@ -95,11 +95,14 @@ public class GameEngine {
                     case 4:
                         useItem();
                         break;
+                    case 5:
+                        System.exit(0);
+                        break;
                     default:
                         System.out.println("Invalid choice.");
                 }
             } else {
-                System.out.println("Choose an action:");
+                System.out.println("\nChoose an action:");
                 System.out.println("1. Move to next room");
                 System.out.println("2. Move to previous room");
                 System.out.println("3. Show Inventory");
@@ -119,6 +122,9 @@ public class GameEngine {
                         break;
                     case 4:
                         useItem();
+                        break;
+                    case 5:
+                        System.exit(0);
                         break;
                     default:
                         System.out.println("Invalid choice.");
@@ -215,34 +221,53 @@ public class GameEngine {
         System.out.println("\nYou are in a " + currentRoom.getDescription());
         System.out.println("Choose a room description to move to:");
 
-        int count = 0;
-        for (String description : roomMap.values()) {
-            if (!description.equals(currentRoom.getDescription())) {
-                System.out.println(" - " + description.replace(" #", ""));
-                count++;
-                if (count == 2) break;
-            }
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(Paths.get("red_black_tree.txt"));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
 
-        System.out.print("\nEnter the room description: ");
-        String roomDescription = scanner.nextLine();
-        Integer roomId = null;
-
-        for (Map.Entry<Integer, String> entry : roomMap.entrySet()) {
-            if (entry.getValue().replace(" #", "").equalsIgnoreCase(roomDescription)) {
-                roomId = entry.getKey();
+        int currentIndex = -1;
+        for (int i = 0; i < lines.size(); i++) {
+            if (lines.get(i).contains("Room ID: " + currentRoom.getId() + ",")) {
+                currentIndex = i;
                 break;
             }
         }
 
-        if (roomId != null) {
-            previousRoom = currentRoom;
-            currentRoom = new Room(roomId, roomDescription, false, false, null);
-            System.out.println("\nMoved to room: " + currentRoom.getDescription());
-            markRoomAsVisited(roomId);
-        } else {
-            System.out.println("\nInvalid room description.");
+        if (currentIndex == -1) {
+            System.out.println("Current room not found in file.");
+            return;
         }
+
+        int nextRoomIndex1 = currentIndex + 1;
+        int nextRoomIndex2 = currentIndex + 2;
+
+        if (nextRoomIndex1 >= lines.size() || nextRoomIndex2 >= lines.size()) {
+            System.out.println("No more rooms to move to.");
+            return;
+        }
+
+        String nextRoomDescription1 = lines.get(nextRoomIndex1).split(", ")[1].split(": ")[1];
+        String nextRoomDescription2 = lines.get(nextRoomIndex2).split(", ")[1].split(": ")[1];
+
+        System.out.println("1. " + nextRoomDescription1);
+        System.out.println("2. " + nextRoomDescription2);
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        int chosenRoomIndex = (choice == 1) ? nextRoomIndex1 : nextRoomIndex2;
+        String chosenRoomLine = lines.get(chosenRoomIndex);
+        int chosenRoomId = Integer.parseInt(chosenRoomLine.split(", ")[0].split(": ")[1]);
+        String chosenRoomDescription = chosenRoomLine.split(", ")[1].split(": ")[1];
+
+        previousRoom = currentRoom;
+        currentRoom = new Room(chosenRoomId, chosenRoomDescription, false, false, null);
+        System.out.println("\nMoved to room: " + currentRoom.getDescription());
+        markRoomAsVisited(chosenRoomId);
     }
 
     private void moveToPreviousRoom() {

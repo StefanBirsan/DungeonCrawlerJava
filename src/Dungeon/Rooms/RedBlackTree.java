@@ -198,18 +198,18 @@ public class RedBlackTree {
 
     public void writeTreeToFile(String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            writeNodeToFile(writer, this.root);
+            writeNodeToFile(root, writer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void writeNodeToFile(BufferedWriter writer, Node node) throws IOException {
+    private void writeNodeToFile(Node node, BufferedWriter writer) throws IOException {
         if (node != TNULL) {
-            writer.write("Room ID: " + node.room.getId() + ", Description: " + node.room.getDescription());
-            writer.newLine();
-            writeNodeToFile(writer, node.left);
-            writeNodeToFile(writer, node.right);
+            writeNodeToFile(node.left, writer);
+            writer.write("Room ID: " + node.room.getId() + ", Description: " + node.room.getDescription() +
+                    ", Has Enemy: " + node.room.hasEnemy() + "\n");
+            writeNodeToFile(node.right, writer);
         }
     }
 

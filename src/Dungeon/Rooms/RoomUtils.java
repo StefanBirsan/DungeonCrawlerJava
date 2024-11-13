@@ -22,7 +22,7 @@ public class RoomUtils {
         Random random = new Random();
 
         List<Integer> roomIds = new ArrayList<>();
-        for (int i = 1; i <= numberOfRooms; i++) {
+        for (int i = 2; i <= numberOfRooms; i++) {
             roomIds.add(i);
         }
         Collections.shuffle(roomIds);
@@ -31,18 +31,17 @@ public class RoomUtils {
 
         for (int i = 1; i < numberOfRooms; i++) {
             String description = ROOM_DESCRIPTIONS[random.nextInt(ROOM_DESCRIPTIONS.length)];
-            boolean hasEnemy = random.nextBoolean();
+            boolean hasEnemy = "Boss Room".equals(description) || random.nextBoolean();
             boolean hasTreasure = random.nextBoolean();
             Encounter encounter = null;
 
             if ("Boss Room".equals(description)) {
-                hasEnemy = true;
                 encounter = new Enemy("Boss", "A mighty boss appears!", "Dragon", 200, 30, 15);
             } else if (hasEnemy) {
                 encounter = new Enemy("Enemy", "A wild enemy appears!", "Goblin", 50, 15, 5);
             }
 
-            tree.insert(new Room(roomIds.get(i), description, hasEnemy, hasTreasure, encounter));
+            tree.insert(new Room(roomIds.get(i - 1), description, hasEnemy, hasTreasure, encounter));
         }
 
         tree.writeTreeToFile("red_black_tree.txt");

@@ -36,7 +36,7 @@ public abstract class PlayerClass extends Player {
     public void showInventory() {
         System.out.println(name + "'s Inventory:");
         for (Item item : inventory) {
-            System.out.println("- " + item);
+            System.out.println("- " + item.getItemName());
         }
     }
 
