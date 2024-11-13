@@ -1,5 +1,9 @@
 package Dungeon.Rooms;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class RedBlackTree {
     private Node root;
     private Node TNULL;
@@ -192,5 +196,21 @@ public class RedBlackTree {
         return node != TNULL ? node.right : null;
     }
 
+    public void writeTreeToFile(String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            writeNodeToFile(writer, this.root);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeNodeToFile(BufferedWriter writer, Node node) throws IOException {
+        if (node != TNULL) {
+            writer.write("Room ID: " + node.room.getId() + ", Description: " + node.room.getDescription());
+            writer.newLine();
+            writeNodeToFile(writer, node.left);
+            writeNodeToFile(writer, node.right);
+        }
+    }
 
 }

@@ -1,6 +1,8 @@
 package player.Classes;
 
 import player.PlayerClass;
+import item.Item;
+import Interfaces.ItemAction;
 
 public class Barbarian extends PlayerClass {
     private boolean isRaging;
@@ -12,8 +14,20 @@ public class Barbarian extends PlayerClass {
 
     @Override
     protected void setupStartingItems() {
-        inventory.add("Battle Axe");
-        inventory.add("Healing Potion");
+        inventory.add(new Item("Battle Axe", "A large double axe used for battle.", 1, false, new ItemAction() {
+            @Override
+            public void execute() {
+                System.out.println("Equiped the axe!");
+                increaseAttackPower(25);
+            }
+        }));
+        inventory.add(new Item("Healing Potion", "A potion that heals 50 health.", 3, true, new ItemAction() {
+            @Override
+            public void execute() {
+                System.out.println("Drinking the Healing Potion!");
+                increaseHealth(50);
+            }
+        }));
     }
 
     @Override
@@ -30,5 +44,17 @@ public class Barbarian extends PlayerClass {
         } else {
             System.out.println(name + " attacks with " + attackPower + " power.");
         }
+    }
+
+    public void increaseHealth(int amount) {
+        int maxHealth = health;
+        health += amount;
+        if (health > maxHealth) {
+            health = maxHealth;
+        }
+    }
+
+    public void increaseAttackPower(int amount) {
+        attackPower += amount;
     }
 }

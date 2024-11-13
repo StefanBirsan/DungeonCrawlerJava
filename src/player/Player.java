@@ -33,7 +33,5 @@ public class Player {
         System.out.println(name + " gained " + exp + " experience.");
     }
 
-    public void showStats() {
-        System.out.println(name + "'s Health: " + health + ", Experience: " + experience );
-    }
+
 }

@@ -1,20 +1,18 @@
-// src/player/PlayerClass.java
 package player;
+
+import item.Item;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class PlayerClass {
-    protected String name;
-    protected int health;
+public abstract class PlayerClass extends Player {
     protected int mana;
     protected int attackPower;
-    protected List<String> inventory;
+    protected List<Item> inventory;
     private String playerClass;
 
     public PlayerClass(String name, int health, int mana, int attackPower) {
-        this.name = name;
-        this.health = health;
+        super(name);
         this.mana = mana;
         this.attackPower = attackPower;
         this.inventory = new ArrayList<>();
@@ -37,7 +35,7 @@ public abstract class PlayerClass {
 
     public void showInventory() {
         System.out.println(name + "'s Inventory:");
-        for (String item : inventory) {
+        for (Item item : inventory) {
             System.out.println("- " + item);
         }
     }
@@ -45,4 +43,27 @@ public abstract class PlayerClass {
     public int getHealth() {
         return health;
     }
+
+    public void showStats() {
+        System.out.println("===== Player Stats =====");
+        System.out.println("Name: " + name);
+        System.out.println("Health: " + health);
+        System.out.println("Mana: " + mana);
+        System.out.println("Base DMG: " + attackPower);
+        System.out.println("XP: " + experience);
+        System.out.println("========================");
+    }
+
+    public List<String> getInventory() {
+        List<java.lang.String> itemNames = new ArrayList<>();
+        for (Item item : inventory) {
+            itemNames.add(item.getItemName());
+        }
+        return itemNames;
+    }
+
+    public List<Item> getInventoryItems() {
+        return inventory;
+    }
+
 }
