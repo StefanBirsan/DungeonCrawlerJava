@@ -10,7 +10,10 @@ import Exception.ItemNonExistent;
 import item.Item;
 import java.io.BufferedReader;
 import java.io.FileReader;
+
 import java.io.IOException;
+import java.util.InputMismatchException;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -38,11 +41,15 @@ public class GameEngine {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(", ");
-                int roomId = Integer.parseInt(parts[0].split(": ")[1]);
-                String description = parts[1].split(": ")[1];
-                boolean visited = line.endsWith("#");
-                roomMap.put(roomId, description + (visited ? " #" : ""));
+                try {
+                    String[] parts = line.split(", ");
+                    int roomId = Integer.parseInt(parts[0].split(": ")[1]);
+                    String description = parts[1].split(": ")[1];
+                    boolean visited = line.endsWith("#");
+                    roomMap.put(roomId, description + (visited ? " #" : ""));
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid room ID format in line: " + line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,7 +71,7 @@ public class GameEngine {
         }
     }
 
-    public void action() {
+    private void action() {
         try {
             if (currentRoom == null) {
                 throw new RoomNotSetException("Current room is not set.");
@@ -74,6 +81,8 @@ public class GameEngine {
             System.out.println("=====================================");
             System.out.println("What shall be your next move?");
             System.out.println("=====================================");
+
+            Scanner scanner = new Scanner(System.in);
 
             if (currentRoom.hasEnemy()) {
                 Enemy enemy = currentRoom.getEnemy();
@@ -90,41 +99,46 @@ public class GameEngine {
                 System.out.println("5. Show Enemy Info");
                 System.out.println("6. Quit game");
 
-                int choice = new Scanner(System.in).nextInt();
-                switch (choice) {
-                    case 1:
-                        player.attack(currentRoom.getEnemy());
-                        if (currentRoom.getEnemy().isDead()) {
-                            System.out.println("You have defeated the enemy!");
-                            moveToNextRoom();
-                        } else {
-                            currentRoom.getEnemy().attack(player);
-                            if (player.getHealth() <= 0) {
-                                System.out.println("You have been defeated by the enemy!");
-                                System.exit(0);
+                try {
+                    int choice = scanner.nextInt();
+                    switch (choice) {
+                        case 1:
+                            player.attack(currentRoom.getEnemy());
+                            if (currentRoom.getEnemy().isDead()) {
+                                System.out.println("You have defeated the enemy!");
+                                moveToNextRoom();
+                            } else {
+                                currentRoom.getEnemy().attack(player);
+                                if (player.getHealth() <= 0) {
+                                    System.out.println("You have been defeated by the enemy!");
+                                    System.exit(0);
+                                }
                             }
-                        }
-                        playerTakeDamage(player);
-                        break;
-                    case 2:
-                        player.specialAction();
-                        playerTakeDamage(player);
-                        break;
-                    case 3:
-                        player.showInventory();
-                        break;
-                    case 4:
-                        useItem();
-                        break;
-                    case 5:
-                        showEnemyInfo();
-                        playerTakeDamage(player);
-                        break;
-                    case 6:
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Invalid choice.");
+                            playerTakeDamage(player);
+                            break;
+                        case 2:
+                            player.specialAction();
+                            playerTakeDamage(player);
+                            break;
+                        case 3:
+                            player.showInventory();
+                            break;
+                        case 4:
+                            useItem();
+                            break;
+                        case 5:
+                            showEnemyInfo();
+                            playerTakeDamage(player);
+                            break;
+                        case 6:
+                            System.exit(0);
+                            break;
+                        default:
+                            System.out.println("Invalid choice.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and 6.");
+                    scanner.nextLine();
                 }
             } else {
                 System.out.println("\nChoose an action:");
@@ -134,29 +148,32 @@ public class GameEngine {
                 System.out.println("4. Use item");
                 System.out.println("5. Quit game");
 
-                int choice = new Scanner(System.in).nextInt();
-                switch (choice) {
-                    case 1:
-                        moveToNextRoom();
-                        break;
-                    case 2:
-                        moveToPreviousRoom();
-                        break;
-                    case 3:
-                        player.showInventory();
-                        break;
-                    case 4:
-                        useItem();
-                        break;
-                    case 5:
-                        System.exit(0);
-                        break;
-                    default:
-                        System.out.println("Invalid choice.");
+                try {
+                    int choice = scanner.nextInt();
+                    switch (choice) {
+                        case 1:
+                            moveToNextRoom();
+                            break;
+                        case 2:
+                            moveToPreviousRoom();
+                            break;
+                        case 3:
+                            player.showInventory();
+                            break;
+                        case 4:
+                            useItem();
+                            break;
+                        case 5:
+                            System.exit(0);
+                            break;
+                        default:
+                            System.out.println("Invalid choice.");
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("Invalid input. Please enter a number between 1 and 5.");
+                    scanner.nextLine();
                 }
             }
-
-
         } catch (RoomNotSetException e) {
             System.out.println(e.getMessage());
         }
@@ -195,8 +212,20 @@ public class GameEngine {
         System.out.println("2. Wizzard");
         System.out.println("=====================================");
 
-        int classChoice = scanner.nextInt();
-        scanner.nextLine();
+        int classChoice = 0;
+        while (true) {
+            try {
+                classChoice = scanner.nextInt();
+                scanner.nextLine();
+                if (classChoice < 1 || classChoice > 2) {
+                    throw new InputMismatchException("Invalid choice. Please enter 1 or 2.");
+                }
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number (1 or 2).");
+                scanner.nextLine();
+            }
+        }
 
         switch (classChoice) {
             case 1:
@@ -205,13 +234,23 @@ public class GameEngine {
             case 2:
                 player = new Wizzard(playerName);
                 break;
-            default:
-                System.out.println("Invalid choice. Defaulting to Barbarian.");
-                player = new Barbarian(playerName);
         }
 
         System.out.print("Enter the number of rooms: ");
-        int numberOfRooms = scanner.nextInt();
+        int numberOfRooms = 0;
+        while (true) {
+            try {
+                numberOfRooms = scanner.nextInt();
+                scanner.nextLine();
+                if (numberOfRooms <= 0) {
+                    throw new InputMismatchException("Number of rooms must be positive.");
+                }
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a positive number.");
+                scanner.nextLine();
+            }
+        }
 
         roomTree = RoomUtils.generateDungeon(numberOfRooms);
 
